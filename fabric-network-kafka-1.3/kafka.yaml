@@ -1,0 +1,134 @@
+version: '3.1'
+
+services:
+
+  ##########################################################################################
+  #      Zookeeper                                                                         #
+  ##########################################################################################
+  zookeeper1:
+    image: zookeeper:3.4.13
+    container_name: zookeeper1
+    restart: always
+    ports:
+      - '12181:2181'
+      - '2888'
+      - '3888'
+    volumes:
+      - ./data/zookeeper/zookeeper1:/tmp
+    environment:
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+
+  zookeeper2:
+    image: zookeeper:3.4.13
+    container_name: zookeeper2
+    restart: always
+    ports:
+      - '12281:2181'
+      - '2888'
+      - '3888'
+    volumes:
+      - ./data/zookeeper/zookeeper2:/tmp
+    environment:
+      - ZOO_MY_ID=2
+      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+
+  zookeeper3:
+    image: zookeeper:3.4.13
+    container_name: zookeeper3
+    restart: always
+    ports:
+      - '12381:2181'
+      - '2888'
+      - '3888'
+    volumes:
+      - ./data/zookeeper/zookeeper3:/tmp
+    environment:
+      - ZOO_MY_ID=3
+      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+
+  ##########################################################################################
+  #      Kafka                                                                             #
+  ##########################################################################################
+  kafka1:
+    image: wurstmeister/kafka:1.0.0
+    container_name: kafka1
+    restart: always
+    ports:
+      - '19192:9092'
+    volumes:
+      - ./conf/kafka/server1.properties:/opt/kafka/config/server.properties
+      - ./data/kafka/kafka1:/tmp/kafka-logs
+    environment:
+      JMX_PORT: "1099"
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+
+  kafka2:
+    image: wurstmeister/kafka:1.0.0
+    container_name: kafka2
+    restart: always
+    ports:
+      - '19292:9092'
+    volumes:
+      - ./conf/kafka/server2.properties:/opt/kafka/config/server.properties
+      - ./data/kafka/kafka2:/tmp/kafka-logs
+    environment:
+      JMX_PORT: "1099"
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+
+  kafka3:
+    image: wurstmeister/kafka:1.0.0
+    container_name: kafka3
+    restart: always
+    ports:
+      - '19392:9092'
+    volumes:
+      - ./conf/kafka/server3.properties:/opt/kafka/config/server.properties
+      - ./data/kafka/kafka3:/tmp/kafka-logs
+    environment:
+      JMX_PORT: "1099"
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+
+  kafka4:
+    image: wurstmeister/kafka:1.0.0
+    container_name: kafka4
+    restart: always
+    ports:
+      - '19492:9092'
+    volumes:
+      - ./conf/kafka/server4.properties:/opt/kafka/config/server.properties
+      - ./data/kafka/kafka4:/tmp/kafka-logs
+    environment:
+      JMX_PORT: "1099"
+    depends_on:
+      - zookeeper1
+      - zookeeper2
+      - zookeeper3
+
+  ##########################################################################################
+  #      Kafka-Manager                                                                     #
+  ##########################################################################################
+  kafka-mananger:
+    image: hlebalbau/kafka-manager:1.3.3.18
+    container_name: kafka-manager
+    restart: always
+    ports:
+      - '9000:9000'
+    environment:
+      ZK_HOSTS: "zookeeper1:2181,zookeeper2:2181,zookeeper3:2181"
+      APPLICATION_SECRET: "lalalalal123456"
+      KAFKA_MANAGER_AUTH_ENABLED: "true"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+      - kafka4
