@@ -16,8 +16,10 @@ services:
     volumes:
       - ./data/zookeeper/zookeeper1:/tmp
     environment:
-      - ZOO_MY_ID=1
-      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+      ZOO_MY_ID: "1"
+      ZOO_SERVERS: "server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888"
+      ZOO_LOG4J_PROP: "ERROR,CONSOLE"
+      JVMFLAGS: "-Xmx128M -Xms128M"
 
   zookeeper2:
     image: zookeeper:3.4.13
@@ -30,8 +32,10 @@ services:
     volumes:
       - ./data/zookeeper/zookeeper2:/tmp
     environment:
-      - ZOO_MY_ID=2
-      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+      ZOO_MY_ID: "2"
+      ZOO_SERVERS: "server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888"
+      ZOO_LOG4J_PROP: "ERROR,CONSOLE"
+      JVMFLAGS: "-Xmx128M -Xms128M"
 
   zookeeper3:
     image: zookeeper:3.4.13
@@ -44,8 +48,10 @@ services:
     volumes:
       - ./data/zookeeper/zookeeper3:/tmp
     environment:
-      - ZOO_MY_ID=3
-      - ZOO_SERVERS=server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888
+      ZOO_MY_ID: "3"
+      ZOO_SERVERS: "server.1=zookeeper1:2888:3888 server.2=zookeeper2:2888:3888 server.3=zookeeper3:2888:3888"
+      ZOO_LOG4J_PROP: "ERROR,CONSOLE"
+      JVMFLAGS: "-Xmx128M -Xms128M"
 
   ##########################################################################################
   #      Kafka                                                                             #
@@ -58,9 +64,11 @@ services:
       - '19192:9092'
     volumes:
       - ./conf/kafka/server1.properties:/opt/kafka/config/server.properties
+      - ./conf/kafka/log4j.properties:/opt/kafka/config/log4j.properties
       - ./data/kafka/kafka1:/tmp/kafka-logs
     environment:
       JMX_PORT: "1099"
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
     depends_on:
       - zookeeper1
       - zookeeper2
@@ -74,9 +82,11 @@ services:
       - '19292:9092'
     volumes:
       - ./conf/kafka/server2.properties:/opt/kafka/config/server.properties
+      - ./conf/kafka/log4j.properties:/opt/kafka/config/log4j.properties
       - ./data/kafka/kafka2:/tmp/kafka-logs
     environment:
       JMX_PORT: "1099"
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
     depends_on:
       - zookeeper1
       - zookeeper2
@@ -90,9 +100,11 @@ services:
       - '19392:9092'
     volumes:
       - ./conf/kafka/server3.properties:/opt/kafka/config/server.properties
+      - ./conf/kafka/log4j.properties:/opt/kafka/config/log4j.properties
       - ./data/kafka/kafka3:/tmp/kafka-logs
     environment:
       JMX_PORT: "1099"
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
     depends_on:
       - zookeeper1
       - zookeeper2
@@ -106,9 +118,11 @@ services:
       - '19492:9092'
     volumes:
       - ./conf/kafka/server4.properties:/opt/kafka/config/server.properties
+      - ./conf/kafka/log4j.properties:/opt/kafka/config/log4j.properties
       - ./data/kafka/kafka4:/tmp/kafka-logs
     environment:
       JMX_PORT: "1099"
+      KAFKA_HEAP_OPTS: "-Xmx256M -Xms256M"
     depends_on:
       - zookeeper1
       - zookeeper2
@@ -120,13 +134,13 @@ services:
   kafka-mananger:
     image: hlebalbau/kafka-manager:1.3.3.18
     container_name: kafka-manager
-    restart: always
     ports:
       - '9000:9000'
     environment:
       ZK_HOSTS: "zookeeper1:2181,zookeeper2:2181,zookeeper3:2181"
       APPLICATION_SECRET: "lalalalal123456"
       KAFKA_MANAGER_AUTH_ENABLED: "true"
+      JAVA_OPTS: "-Xms256M -Xmx256M"
     depends_on:
       - kafka1
       - kafka2
